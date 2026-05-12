@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fix My Text</title>
+  <style>
+    :root {
+      --paper: #f7f3ea;
+      --paper-strong: rgba(255, 250, 242, 0.92);
+      --ink: #1f2430;
+      --muted: #5b6470;
+      --line: rgba(31, 36, 48, 0.12);
+      --accent: #b54d33;
+      --accent-soft: rgba(181, 77, 51, 0.12);
+      --accent-2: #0d6b59;
+      --accent-2-soft: rgba(13, 107, 89, 0.14);
+      --danger: #8e3d37;
+      --danger-soft: rgba(142, 61, 55, 0.14);
+      --shadow: 0 18px 48px rgba(50, 34, 18, 0.1);
+      --radius: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(181, 77, 51, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(13, 107, 89, 0.16), transparent 24%),
+        linear-gradient(180deg, #fbf7ef 0%, #efe4d3 100%);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: 12px;
+    }
+
+    .shell {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel {
+      background: var(--paper-strong);
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .settings {
+      margin-top: 10px;
+      border-top: 1px dashed rgba(31, 36, 48, 0.14);
+      padding-top: 10px;
+    }
+
+    .settings summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .settings-body {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--ink);
+      padding: 11px 13px;
+      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(181, 77, 51, 0.42);
+      box-shadow: 0 0 0 4px rgba(181, 77, 51, 0.1);
+    }
+
+    .inline-control {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .inline-control > select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .inline-button {
+      border-radius: 16px;
+      padding-inline: 10px;
+      white-space: nowrap;
+    }
+
+    #hotkeyInput.capturing-hotkey {
+      border-color: rgba(13, 107, 89, 0.45);
+      box-shadow: 0 0 0 4px rgba(13, 107, 89, 0.18);
+      background: rgba(246, 255, 250, 0.96);
+      color: #174f42;
+    }
+
+    textarea {
+      min-height: 168px;
+      max-height: 220px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .secondary-actions,
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .service-grid {
+      margin: 0;
+    }
+
+    .service-grid .ghost {
+      width: 100%;
+    }
+
+    .ghost,
+    .primary {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, color 140ms ease;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #b54d33 0%, #cb7149 100%);
+      color: white;
+      box-shadow: 0 18px 34px rgba(181, 77, 51, 0.24);
+    }
+
+    .primary.is-busy {
+      background: linear-gradient(135deg, #0d6b59 0%, #2c927d 100%);
+      box-shadow: 0 18px 34px rgba(13, 107, 89, 0.2);
+    }
+
+    .primary.is-error {
+      background: linear-gradient(135deg, #8e3d37 0%, #b85a4c 100%);
+      box-shadow: 0 18px 34px rgba(142, 61, 55, 0.2);
+    }
+
+    .ghost {
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--ink);
+      border: 1px solid rgba(31, 36, 48, 0.08);
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin: 12px 0 16px;
+      padding-bottom: 2px;
+      gap: 10px;
+    }
+
+    .service-status {
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+
+    .service-status.error {
+      color: var(--danger);
+    }
+
+    .desktop-alert {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding: 12px;
+      border: 1px solid rgba(13, 107, 89, 0.2);
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(245, 253, 248, 0.82)),
+        var(--accent-2-soft);
+      color: #174f42;
+    }
+
+    .desktop-alert[hidden] {
+      display: none;
+    }
+
+    .desktop-alert.error {
+      border-color: rgba(142, 61, 55, 0.24);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 245, 241, 0.84)),
+        var(--danger-soft);
+      color: #6f312c;
+    }
+
+    .desktop-alert-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .desktop-alert-message {
+      margin: 0;
+      color: inherit;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .desktop-alert-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .desktop-alert-actions .ghost {
+      padding: 8px 11px;
+      font-size: 13px;
+    }
+
+    .diff-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .diff-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      overflow: hidden;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(248, 243, 234, 0.9);
+    }
+
+    .card-head strong {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .legend {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .diff-head-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .legend-add { background: #d7efc8; }
+    .legend-del { background: #f2d2cc; }
+
+    .diff-output {
+      min-height: 220px;
+      max-height: 300px;
+      overflow: auto;
+      padding: 14px;
+      white-space: pre-wrap;
+      line-height: 1.72;
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .diff-output.is-placeholder {
+      color: #7d8572;
+    }
+
+    .diff-output del {
+      color: #7f3c34;
+      background: #f5d7d0;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(127, 60, 52, 0.82);
+      border-radius: 0.34em;
+      padding: 0.06em 0.12em;
+      margin: 0 0.01em;
+    }
+
+    .diff-output ins {
+      color: #184236;
+      background: #d9f0ca;
+      text-decoration: none;
+      border-radius: 0.34em;
+      padding: 0.06em 0.12em;
+      margin: 0 0.01em;
+      box-shadow: inset 0 -0.15em 0 rgba(13, 107, 89, 0.12);
+    }
+
+    .secondary-actions {
+      padding: 0 0 4px;
+    }
+
+    @media (max-width: 960px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        align-items: flex-start;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .diff-output {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <label for="sourceText">Text</label>
+      <textarea id="sourceText" placeholder="Paste or capture text here."></textarea>
+      <div id="desktopAlert" class="desktop-alert" role="status" aria-live="polite" hidden>
+        <div id="desktopAlertTitle" class="desktop-alert-title">Fix My Text needs attention</div>
+        <p id="desktopAlertMessage" class="desktop-alert-message"></p>
+        <div class="desktop-alert-actions">
+          <button id="openAccessibilityButton" class="ghost" type="button" hidden>Open Accessibility Settings</button>
+          <button id="dismissDesktopAlert" class="ghost" type="button">Dismiss</button>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button id="rewriteButton" class="primary" type="button">Rewrite</button>
+      </div>
+
+      <div class="diff-wrap">
+        <div class="diff-card">
+          <div class="card-head">
+            <strong>Diff</strong>
+            <div class="diff-head-actions">
+              <div class="legend">
+                <span class="legend-chip"><span class="legend-swatch legend-del"></span> Removed</span>
+                <span class="legend-chip"><span class="legend-swatch legend-add"></span> Added</span>
+              </div>
+              <button id="copyButton" class="ghost" type="button" disabled>Copy</button>
+              <button id="insertButton" class="ghost" type="button" disabled>Insert</button>
+            </div>
+          </div>
+          <div id="diffOutput" class="diff-output is-placeholder">Proposed edits will land here.</div>
+        </div>
+      </div>
+
+      <details class="settings">
+        <summary>Settings</summary>
+        <div class="settings-body">
+          <div class="field-grid">
+            <div>
+              <label for="provider">Provider</label>
+              <select id="provider" aria-label="AI provider">
+                <option value="anthropic">Anthropic</option>
+                <option value="openai">OpenAI</option>
+                <option value="grok">Grok (xAI)</option>
+              </select>
+            </div>
+            <div>
+              <label for="apiKey">API key</label>
+              <input id="apiKey" type="password" placeholder="Provider API key" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label for="model">Model</label>
+              <div class="inline-control">
+                <select id="model">
+                  <option value="">Load provider models</option>
+                </select>
+                <button id="refreshModels" class="ghost inline-button" type="button">Refresh models</button>
+              </div>
+            </div>
+            <div>
+              <label for="modelStatus">Model status</label>
+              <p id="modelStatus" class="service-status">Select a provider and key.</p>
+            </div>
+          </div>
+
+          <div class="field-grid service-grid">
+            <div>
+              <label for="hotkeyInput">Global hotkey</label>
+              <input id="hotkeyInput" type="text" spellcheck="false" placeholder="CommandOrControl+Alt+Shift+T">
+            </div>
+            <div>
+              <label for="registerHotkeyButton">Hotkey</label>
+              <button id="registerHotkeyButton" class="ghost" type="button">Register</button>
+            </div>
+          </div>
+
+          <p id="serviceStatus" class="service-status">Hotkey status unavailable.</p>
+          <p id="versionStatus" class="service-status">Version unavailable.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    const desktopBridge = window.fixMyTextDesktop || null;
+    const providerSelect = document.getElementById('provider');
+    const apiKeyInput = document.getElementById('apiKey');
+    const modelInput = document.getElementById('model');
+    const refreshModelsButton = document.getElementById('refreshModels');
+    const modelStatus = document.getElementById('modelStatus');
+    const hotkeyInput = document.getElementById('hotkeyInput');
+    const registerHotkeyButton = document.getElementById('registerHotkeyButton');
+    const serviceStatus = document.getElementById('serviceStatus');
+    const versionStatus = document.getElementById('versionStatus');
+    const sourceText = document.getElementById('sourceText');
+    const rewriteButton = document.getElementById('rewriteButton');
+    const copyButton = document.getElementById('copyButton');
+    const insertButton = document.getElementById('insertButton');
+    const diffOutput = document.getElementById('diffOutput');
+    const desktopAlert = document.getElementById('desktopAlert');
+    const desktopAlertTitle = document.getElementById('desktopAlertTitle');
+    const desktopAlertMessage = document.getElementById('desktopAlertMessage');
+    const openAccessibilityButton = document.getElementById('openAccessibilityButton');
+    const dismissDesktopAlert = document.getElementById('dismissDesktopAlert');
+    const panel = document.querySelector('.panel');
+    const settingsDetails = document.querySelector('.settings');
+    const HOTKEY_CAPTURE_PLACEHOLDER = 'Press your key combination';
+    const HOTKEY_WAITING_PLACEHOLDER = 'Waiting for input...';
+
+    const DEFAULT_PROVIDER = 'grok';
+    const PROVIDER_MODELS = {
+      anthropic: ['claude-3-5-sonnet-20241022', 'claude-3-7-sonnet-20250219', 'claude-3-5-haiku-20241022'],
+      openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'],
+      grok: ['grok-4-1-fast-non-reasoning', 'grok-4-fast', 'grok-4', 'grok-2-1212']
+    };
+
+    const STORAGE_KEYS = {
+      provider: 'fix-my-text.provider',
+      apiKeys: 'fix-my-text.api-keys',
+      models: 'fix-my-text.model-selections'
+    };
+
+    let lastRewrite = '';
+    let hasCallingAppForCurrentRewrite = false;
+    let isCapturingHotkey = false;
+    let preCaptureHotkeyValue = '';
+    let captureMessage = 'Press a hotkey combo.';
+    let resizeFrame = 0;
+    let modelLoadToken = 0;
+
+    function parseStoredObject(key, fallback = {}) {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        return fallback;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : fallback;
+      } catch (error) {
+        console.warn('Could not parse stored settings:', error);
+        return fallback;
+      }
+    }
+
+    function setModelStatus(message, isError = false) {
+      if (!modelStatus) {
+        return;
+      }
+
+      modelStatus.textContent = message;
+      modelStatus.classList.toggle('error', isError);
+    }
+
+    function getProviderConfigs() {
+      return parseStoredObject(STORAGE_KEYS.apiKeys, {});
+    }
+
+    function getProviderModelSelections() {
+      return parseStoredObject(STORAGE_KEYS.models, {});
+    }
+
+    function getDefaultModel(provider) {
+      return PROVIDER_MODELS[provider]?.[0] || 'grok-4-1-fast-non-reasoning';
+    }
+
+    function getCurrentProviderKey() {
+      return providerSelect?.value || DEFAULT_PROVIDER;
+    }
+
+    function getSavedApiKeyForProvider(provider) {
+      const keys = getProviderConfigs();
+      const keyValue = keys[provider];
+      return typeof keyValue === 'string' ? keyValue.trim() : '';
+    }
+
+    function setSavedApiKeyForProvider(provider, apiKey) {
+      const keys = getProviderConfigs();
+      if (apiKey) {
+        keys[provider] = apiKey;
+      } else {
+        delete keys[provider];
+      }
+
+      localStorage.setItem(STORAGE_KEYS.apiKeys, JSON.stringify(keys));
+      syncSettingsStateToDesktop();
+    }
+
+    function getSavedModelForProvider(provider) {
+      const models = getProviderModelSelections();
+      return models[provider] || '';
+    }
+
+    function setSavedModelForProvider(provider, model) {
+      const models = getProviderModelSelections();
+      if (model) {
+        models[provider] = model;
+      } else {
+        delete models[provider];
+      }
+
+      localStorage.setItem(STORAGE_KEYS.models, JSON.stringify(models));
+    }
+
+    async function restoreState() {
+      const selectedProvider = localStorage.getItem(STORAGE_KEYS.provider) || DEFAULT_PROVIDER;
+      providerSelect.value = ['anthropic', 'openai', 'grok'].includes(selectedProvider)
+        ? selectedProvider
+        : DEFAULT_PROVIDER;
+
+      apiKeyInput.value = getSavedApiKeyForProvider(providerSelect.value);
+      syncSettingsStateToDesktop();
+      await refreshModelOptions();
+      syncSettingsStateToDesktop();
+    }
+
+    function setStatus(message, isError = false) {
+      const isBusy = !isError && /captured|rewriting|running/i.test(message);
+      rewriteButton.title = message;
+      rewriteButton.textContent = isBusy ? 'Rewriting...' : 'Rewrite';
+      rewriteButton.classList.toggle('is-busy', isBusy);
+      rewriteButton.classList.toggle('is-error', isError);
+    }
+
+    function isAccessibilityMessage(message) {
+      return /Accessibility|Privacy & Security|System Settings|System Preferences|keystrokes|not authorized|not permitted|permission/i.test(message || '');
+    }
+
+    function showDesktopAlert(message, options = {}) {
+      if (!desktopAlert || !desktopAlertTitle || !desktopAlertMessage) {
+        return;
+      }
+
+      const isError = Boolean(options.isError);
+      const showAccessibilityAction = Boolean(desktopBridge?.openAccessibilitySettings)
+        && (options.showAccessibilityAction || isAccessibilityMessage(message));
+
+      desktopAlertTitle.textContent = options.title || (isError ? 'Fix My Text needs attention' : 'Fix My Text status');
+      desktopAlertMessage.textContent = message;
+      desktopAlert.classList.toggle('error', isError);
+      desktopAlert.setAttribute('role', isError ? 'alert' : 'status');
+      desktopAlert.hidden = false;
+
+      if (openAccessibilityButton) {
+        openAccessibilityButton.hidden = !showAccessibilityAction;
+      }
+
+      resizeWindowToPanel();
+    }
+
+    function clearDesktopAlert() {
+      if (!desktopAlert) {
+        return;
+      }
+
+      desktopAlert.hidden = true;
+      resizeWindowToPanel();
+    }
+
+    function populateModelOptions(models, fallbackModel = '') {
+      const currentProvider = getCurrentProviderKey();
+      const knownModels = PROVIDER_MODELS[currentProvider] || [];
+      const merged = Array.isArray(models) && models.length ? models.slice() : knownModels.slice();
+      const withFallback = fallbackModel ? [...merged, fallbackModel] : merged;
+
+      const unique = [...new Set(withFallback.filter((item) => typeof item === 'string' && item.trim()))]
+        .map((item) => item.trim());
+
+      modelInput.innerHTML = '';
+
+      if (!unique.length) {
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'No models available';
+        modelInput.appendChild(emptyOption);
+        modelInput.disabled = true;
+        return [];
+      }
+
+      unique.forEach((modelId) => {
+        const option = document.createElement('option');
+        option.value = modelId;
+        option.textContent = modelId;
+        modelInput.appendChild(option);
+      });
+
+      modelInput.disabled = false;
+      return unique;
+    }
+
+    async function refreshModelOptions() {
+      const currentProvider = getCurrentProviderKey();
+      const apiKey = apiKeyInput.value.trim();
+      const token = ++modelLoadToken;
+      modelInput.disabled = true;
+      refreshModelsButton.disabled = true;
+      modelStatus.classList.remove('error');
+      modelStatus.textContent = apiKey
+        ? `Loading ${currentProvider} models...`
+        : 'Add your API key to load models.';
+
+      if (!apiKey) {
+        const available = PROVIDER_MODELS[currentProvider] || [];
+        const availableModels = populateModelOptions(available);
+        modelInput.value = availableModels[0] || '';
+        if (token === modelLoadToken && getCurrentProviderKey() === currentProvider) {
+          setSavedModelForProvider(currentProvider, modelInput.value);
+          localStorage.setItem(STORAGE_KEYS.provider, currentProvider);
+        }
+        refreshModelsButton.disabled = false;
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: currentProvider,
+            apiKey,
+          }),
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || 'Could not load models for this provider.');
+        }
+
+        const providerModels = Array.isArray(payload.models)
+          ? payload.models.filter((value) => typeof value === 'string' && value.trim())
+          : [];
+
+        const availableModels = populateModelOptions(providerModels, getDefaultModel(currentProvider));
+        const preferred = getSavedModelForProvider(currentProvider);
+        const nextModel = preferred && providerModels.includes(preferred)
+          ? preferred
+          : getDefaultModel(currentProvider);
+
+        modelInput.value = availableModels.includes(nextModel) ? nextModel : availableModels[0] || '';
+        setSavedModelForProvider(currentProvider, modelInput.value);
+        localStorage.setItem(STORAGE_KEYS.provider, currentProvider);
+        modelStatus.textContent = `Loaded ${availableModels.length} model${availableModels.length === 1 ? '' : 's'} for ${currentProvider}.`;
+      } catch (error) {
+        const fallbackModels = PROVIDER_MODELS[currentProvider] || [];
+        const availableModels = populateModelOptions(fallbackModels, getDefaultModel(currentProvider));
+        const fallbackSelected = availableModels.includes(apiKey ? getSavedModelForProvider(currentProvider) : '')
+          ? getSavedModelForProvider(currentProvider)
+          : getDefaultModel(currentProvider);
+        modelInput.value = availableModels.includes(fallbackSelected)
+          ? fallbackSelected
+          : availableModels[0] || '';
+        setSavedModelForProvider(currentProvider, modelInput.value);
+        modelStatus.textContent = error.message || 'Model lookup failed. Using fallback models.';
+        modelStatus.classList.add('error');
+      } finally {
+        if (token === modelLoadToken) {
+          refreshModelsButton.disabled = false;
+        }
+      }
+    }
+
+    function resizeWindowToPanel() {
+      if (!desktopBridge?.resizeToContent || !panel) {
+        return;
+      }
+
+      if (resizeFrame) {
+        cancelAnimationFrame(resizeFrame);
+      }
+
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        const rect = panel.getBoundingClientRect();
+        const bottomPadding = Math.max(18, Math.min(42, rect.height * 0.05));
+        desktopBridge.resizeToContent(rect.bottom + bottomPadding).catch(() => {});
+      });
+    }
+
+    function hasSavedApiKey() {
+      const keys = getProviderConfigs();
+      return Object.values(keys).some((value) => typeof value === 'string' && value.trim())
+        || Boolean(apiKeyInput.value.trim());
+    }
+
+    function syncSettingsStateToDesktop() {
+      if (!desktopBridge?.setSettingsState) {
+        return;
+      }
+
+      desktopBridge.setSettingsState({
+        hasApiKey: hasSavedApiKey(),
+      }).catch(() => {});
+    }
+
+    function expandSettings() {
+      if (!settingsDetails) {
+        return;
+      }
+
+      settingsDetails.open = true;
+      settingsDetails.scrollIntoView({ block: 'nearest' });
+      resizeWindowToPanel();
+    }
+
+    function setServiceStatus(message, isError = false) {
+      if (isError) {
+        showDesktopAlert(message, {
+          isError: true,
+          title: 'Fix My Text needs attention',
+        });
+        return;
+      }
+
+      serviceStatus.textContent = message;
+      serviceStatus.classList.remove('error');
+      clearDesktopAlert();
+    }
+
+    function setPlaceholder(element, text) {
+      element.textContent = text;
+      element.classList.add('is-placeholder');
+      resizeWindowToPanel();
+    }
+
+    function setRenderedDiff(original, rewritten) {
+      diffOutput.innerHTML = '';
+      diffOutput.classList.remove('is-placeholder');
+      const fragment = renderInlineDiff(original, rewritten);
+      diffOutput.appendChild(fragment);
+      resizeWindowToPanel();
+    }
+
+    function resetRewriteOutputs() {
+      lastRewrite = '';
+      copyButton.disabled = true;
+      insertButton.disabled = true;
+      setPlaceholder(diffOutput, 'Proposed edits will land here.');
+    }
+
+    function updateInsertAvailability() {
+      insertButton.disabled = !(lastRewrite && hasCallingAppForCurrentRewrite && desktopBridge?.insertRewrite);
+    }
+
+    function beginHotkeyCapture() {
+      if (!desktopBridge || hotkeyInput.disabled || isCapturingHotkey) {
+        return;
+      }
+
+      preCaptureHotkeyValue = hotkeyInput.value;
+      isCapturingHotkey = true;
+      hotkeyInput.classList.add('capturing-hotkey');
+      hotkeyInput.value = '';
+      hotkeyInput.placeholder = HOTKEY_CAPTURE_PLACEHOLDER;
+      setServiceStatus(captureMessage);
+    }
+
+    function finishHotkeyCapture(restore = false, nextValue = '') {
+      isCapturingHotkey = false;
+      hotkeyInput.classList.remove('capturing-hotkey');
+      hotkeyInput.value = restore ? preCaptureHotkeyValue : nextValue;
+      hotkeyInput.placeholder = HOTKEY_WAITING_PLACEHOLDER;
+      preCaptureHotkeyValue = '';
+    }
+
+    function isModifierOnlyKey(key) {
+      return key === 'Alt' || key === 'AltGraph' || key === 'Control' || key === 'Meta' || key === 'Shift';
+    }
+
+    function normalizeHotkeyKey(event) {
+      const explicit = {
+        ' ': 'Space',
+        Enter: 'Enter',
+        Escape: 'Escape',
+        Tab: 'Tab',
+        Backspace: 'Backspace',
+        Delete: 'Delete',
+        Insert: 'Insert',
+        Home: 'Home',
+        End: 'End',
+        PageUp: 'PageUp',
+        PageDown: 'PageDown',
+        ArrowUp: 'Up',
+        ArrowDown: 'Down',
+        ArrowLeft: 'Left',
+        ArrowRight: 'Right',
+        Escape: 'Esc',
+        '`': 'Grave',
+        '-': 'Minus',
+        '=': 'Equal',
+        '[': 'BracketLeft',
+        ']': 'BracketRight',
+        '\\': 'Backslash',
+        ';': 'Semicolon',
+        "'": 'Apostrophe',
+        ',': 'Comma',
+        '.': 'Period',
+        '/': 'Slash',
+      };
+
+      if (explicit[event.key]) {
+        return explicit[event.key];
+      }
+
+      if (event.code && /^Key([A-Z])$/i.test(event.code)) {
+        return event.code.replace('Key', '').toUpperCase();
+      }
+
+      if (event.code && /^Digit(\d)$/.test(event.code)) {
+        return event.code.replace('Digit', '');
+      }
+
+      if (event.code && /^Numpad/.test(event.code)) {
+        return event.code.replace('Numpad', 'Num');
+      }
+
+      if (event.key && event.key.length === 1) {
+        return event.key.toUpperCase();
+      }
+
+      return event.key;
+    }
+
+    function eventToAccelerator(event) {
+      if (!event) {
+        return '';
+      }
+
+      const keys = [];
+      const primary = normalizeHotkeyKey(event);
+
+      if (!primary) {
+        return '';
+      }
+
+      if (event.metaKey || event.ctrlKey) {
+        keys.push('CommandOrControl');
+      }
+
+      if (event.altKey) {
+        keys.push('Alt');
+      }
+
+      if (event.shiftKey) {
+        keys.push('Shift');
+      }
+
+      if (isModifierOnlyKey(event.key)) {
+        return '';
+      }
+
+      keys.push(primary);
+      return keys.join('+');
+    }
+
+    function tokenize(text) {
+      return text.match(/\r\n|\n|\s+|[A-Za-z0-9]+(?:['’_-][A-Za-z0-9]+)*|[^\sA-Za-z0-9]/g) || [];
+    }
+
+    function diffTokens(before, after) {
+      const a = tokenize(before);
+      const b = tokenize(after);
+      const rows = Array.from({ length: a.length + 1 }, () => new Uint16Array(b.length + 1));
+
+      for (let i = a.length - 1; i >= 0; i -= 1) {
+        for (let j = b.length - 1; j >= 0; j -= 1) {
+          rows[i][j] = a[i] === b[j]
+            ? rows[i + 1][j + 1] + 1
+            : Math.max(rows[i + 1][j], rows[i][j + 1]);
+        }
+      }
+
+      const ops = [];
+      let i = 0;
+      let j = 0;
+
+      const push = (type, value) => {
+        const last = ops[ops.length - 1];
+        if (last && last.type === type) {
+          last.value += value;
+        } else {
+          ops.push({ type, value });
+        }
+      };
+
+      while (i < a.length && j < b.length) {
+        if (a[i] === b[j]) {
+          push('equal', a[i]);
+          i += 1;
+          j += 1;
+        } else if (rows[i + 1][j] >= rows[i][j + 1]) {
+          push('remove', a[i]);
+          i += 1;
+        } else {
+          push('add', b[j]);
+          j += 1;
+        }
+      }
+
+      while (i < a.length) {
+        push('remove', a[i]);
+        i += 1;
+      }
+
+      while (j < b.length) {
+        push('add', b[j]);
+        j += 1;
+      }
+
+      return ops;
+    }
+
+    function renderInlineDiff(before, after) {
+      const ops = diffTokens(before, after);
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < ops.length; i += 1) {
+        const op = ops[i];
+
+        if (op.type === 'equal') {
+          fragment.appendChild(document.createTextNode(op.value));
+          continue;
+        }
+
+        if (op.type === 'remove') {
+          const del = document.createElement('del');
+          del.textContent = op.value;
+          fragment.appendChild(del);
+
+          if (ops[i + 1] && ops[i + 1].type === 'add') {
+            const ins = document.createElement('ins');
+            ins.textContent = ops[i + 1].value;
+            fragment.appendChild(ins);
+            i += 1;
+          }
+          continue;
+        }
+
+        if (op.type === 'add') {
+          const ins = document.createElement('ins');
+          ins.textContent = op.value;
+          fragment.appendChild(ins);
+        }
+      }
+
+      return fragment;
+    }
+
+    async function runRewrite() {
+      const text = sourceText.value.trim();
+      const provider = getCurrentProviderKey();
+      const apiKey = apiKeyInput.value.trim();
+      const model = (modelInput.value || '').trim() || getDefaultModel(provider);
+      const keys = getProviderConfigs();
+
+      if (!text) {
+        setStatus('Paste some text first.', true);
+        sourceText.focus();
+        return;
+      }
+
+      if (provider) {
+        localStorage.setItem(STORAGE_KEYS.provider, provider);
+      }
+
+      if (apiKey) {
+        keys[provider] = apiKey;
+      } else {
+        delete keys[provider];
+      }
+      localStorage.setItem(STORAGE_KEYS.apiKeys, JSON.stringify(keys));
+      setSavedModelForProvider(provider, model);
+      setSavedApiKeyForProvider(provider, apiKey);
+
+      rewriteButton.disabled = true;
+      copyButton.disabled = true;
+      insertButton.disabled = true;
+      setStatus('Rewriting...');
+
+      try {
+        const response = await fetch('/api/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider,
+            text,
+            mode: 'cleanup',
+            model,
+            apiKey
+          })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || 'Rewrite failed.');
+        }
+
+        lastRewrite = payload.rewrittenText;
+        setRenderedDiff(text, lastRewrite);
+        copyButton.disabled = false;
+        updateInsertAvailability();
+        setStatus('Ready.');
+      } catch (error) {
+        setStatus(error.message || 'Rewrite failed.', true);
+        setPlaceholder(diffOutput, 'Rewrite failed.');
+      } finally {
+        rewriteButton.disabled = false;
+      }
+    }
+
+    function syncDesktopConfig(config) {
+      if (!config) {
+        return;
+      }
+
+      if (config.hotkey) {
+        hotkeyInput.value = config.hotkey;
+      }
+
+      if (versionStatus && config.version) {
+        versionStatus.textContent = `Version ${config.version}`;
+      }
+
+      if (config.lastHotkeyError) {
+        setServiceStatus(config.lastHotkeyError, true);
+        return;
+      }
+
+      if (config.registeredHotkey) {
+        setServiceStatus(`Hotkey: ${config.registeredHotkey}`);
+        return;
+      }
+
+      setServiceStatus('No hotkey registered.');
+    }
+
+    async function hydrateDesktopBridge() {
+      if (!desktopBridge) {
+        hotkeyInput.disabled = true;
+        registerHotkeyButton.disabled = true;
+        setServiceStatus('Electron bridge unavailable.', true);
+        return;
+      }
+
+      try {
+        const config = await desktopBridge.getConfig();
+        syncDesktopConfig(config);
+      } catch (error) {
+        setServiceStatus(error.message || 'Could not load Electron service state.', true);
+      }
+    }
+
+    async function registerHotkey() {
+      if (!desktopBridge) {
+        setServiceStatus('Electron bridge unavailable.', true);
+        return;
+      }
+
+      const accelerator = hotkeyInput.value.trim();
+      registerHotkeyButton.disabled = true;
+      setServiceStatus(accelerator ? 'Registering...' : 'Clearing hotkey...');
+
+      try {
+        const result = await desktopBridge.setHotkey(accelerator);
+        if (!result.ok) {
+          setServiceStatus(result.error || 'Hotkey registration failed.', true);
+          return;
+        }
+
+        hotkeyInput.value = result.hotkey || '';
+
+        if (result.cleared) {
+          setServiceStatus('Global hotkey cleared.');
+          return;
+        }
+
+        setServiceStatus(`Hotkey: ${result.hotkey}`);
+      } catch (error) {
+        setServiceStatus(error.message || 'Hotkey registration failed.', true);
+      } finally {
+        registerHotkeyButton.disabled = false;
+      }
+    }
+
+    async function copyCleanRewriteToClipboard() {
+      if (!lastRewrite) {
+        return false;
+      }
+
+      try {
+        await navigator.clipboard.writeText(lastRewrite);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    rewriteButton.addEventListener('click', runRewrite);
+    registerHotkeyButton.addEventListener('click', registerHotkey);
+
+    sourceText.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        runRewrite();
+      }
+    });
+
+    sourceText.addEventListener('input', () => {
+      hasCallingAppForCurrentRewrite = false;
+      updateInsertAvailability();
+      resizeWindowToPanel();
+    });
+
+    settingsDetails?.addEventListener('toggle', resizeWindowToPanel);
+    dismissDesktopAlert?.addEventListener('click', clearDesktopAlert);
+    openAccessibilityButton?.addEventListener('click', async () => {
+      openAccessibilityButton.disabled = true;
+
+      try {
+        await desktopBridge?.openAccessibilitySettings?.();
+      } catch (error) {
+        showDesktopAlert(error.message || 'Could not open macOS Accessibility settings.', {
+          isError: true,
+          title: 'Could not open settings',
+        });
+      } finally {
+        openAccessibilityButton.disabled = false;
+      }
+    });
+
+    hotkeyInput.addEventListener('focus', () => {
+      beginHotkeyCapture();
+    });
+
+    hotkeyInput.addEventListener('blur', () => {
+      if (isCapturingHotkey) {
+        finishHotkeyCapture(true);
+      }
+    });
+
+    hotkeyInput.addEventListener('keydown', (event) => {
+      if (!isCapturingHotkey) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          registerHotkey();
+        }
+
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.key === 'Escape') {
+        finishHotkeyCapture(true);
+        setServiceStatus('Hotkey capture cancelled.');
+        return;
+      }
+
+      const accelerator = eventToAccelerator(event);
+      if (!accelerator) {
+        setServiceStatus('Press a non-modifier key with your combo (e.g. Ctrl+Shift+T).');
+        return;
+      }
+
+      finishHotkeyCapture(false, accelerator);
+      setServiceStatus(`Captured ${accelerator}.`);
+      hotkeyInput.blur();
+    });
+
+    copyButton.addEventListener('click', async () => {
+      if (!lastRewrite) return;
+      const copied = await copyCleanRewriteToClipboard();
+
+      if (copied) {
+        setStatus('Copied.');
+      } else {
+        setStatus('Clipboard copy failed in this browser.', true);
+      }
+    });
+
+    insertButton.addEventListener('click', async () => {
+      if (!lastRewrite) return;
+
+      if (!desktopBridge?.insertRewrite) {
+        setServiceStatus('Electron bridge unavailable.', true);
+        return;
+      }
+
+      insertButton.disabled = true;
+      setServiceStatus('Inserting...');
+
+      try {
+        const copied = await copyCleanRewriteToClipboard();
+        if (!copied) {
+          setServiceStatus('Clipboard copy failed before insert.', true);
+          return;
+        }
+
+        const result = await desktopBridge.insertRewrite(lastRewrite);
+        if (!result.ok) {
+          setServiceStatus(result.error || 'Insert failed.', true);
+          return;
+        }
+
+        setServiceStatus('Inserted.');
+        setStatus('Inserted.');
+      } catch (error) {
+        setServiceStatus(error.message || 'Insert failed.', true);
+      } finally {
+        updateInsertAvailability();
+      }
+    });
+
+    providerSelect.addEventListener('change', async () => {
+      const selectedProvider = providerSelect.value;
+      localStorage.setItem(STORAGE_KEYS.provider, selectedProvider);
+      apiKeyInput.value = getSavedApiKeyForProvider(selectedProvider);
+      syncSettingsStateToDesktop();
+      await refreshModelOptions();
+      syncSettingsStateToDesktop();
+    });
+
+    apiKeyInput.addEventListener('change', () => {
+      setSavedApiKeyForProvider(getCurrentProviderKey(), apiKeyInput.value.trim());
+      void refreshModelOptions();
+    });
+
+    modelInput.addEventListener('change', () => {
+      setSavedModelForProvider(getCurrentProviderKey(), modelInput.value.trim());
+    });
+
+    refreshModelsButton.addEventListener('click', () => {
+      void refreshModelOptions();
+    });
+
+    if (desktopBridge) {
+      desktopBridge.onConfig((config) => {
+        syncDesktopConfig(config);
+      });
+
+      desktopBridge.onShowSettings(() => {
+        expandSettings();
+      });
+
+      desktopBridge.onHotkeyActivated((payload) => {
+        sourceText.focus();
+
+        if (payload && typeof payload.text === 'string' && payload.text.trim()) {
+          resetRewriteOutputs();
+          hasCallingAppForCurrentRewrite = Boolean(payload.canInsert);
+          sourceText.value = payload.text;
+          sourceText.setSelectionRange(0, payload.text.length);
+          setServiceStatus(`Captured via ${payload.method}.`);
+          setStatus('Captured. Rewriting...');
+          runRewrite();
+          return;
+        }
+
+        hasCallingAppForCurrentRewrite = false;
+        setServiceStatus(payload?.error || 'No selected text captured.', true);
+        setStatus('Capture failed.', true);
+      });
+    }
+
+    restoreState().then(() => {
+      syncSettingsStateToDesktop();
+    });
+    hydrateDesktopBridge();
+    resizeWindowToPanel();
+
+    if (window.ResizeObserver && panel) {
+      new ResizeObserver(resizeWindowToPanel).observe(panel);
+    }
+  </script>
+</body>
+</html>

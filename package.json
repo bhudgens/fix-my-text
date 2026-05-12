@@ -1,0 +1,66 @@
+{
+  "name": "fix-my-text",
+  "version": "1.0.0",
+  "description": "Inline AI rewrite tool inspired by X/Twitter Grok integration",
+  "author": {
+    "name": "Benjamin Hudgens",
+    "email": "benjamin@benjamindavid.com"
+  },
+  "license": "ISC",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --publish never",
+    "build:linux": "electron-builder --linux AppImage deb --publish never",
+    "build:mac": "electron-builder --mac dmg zip --publish never",
+    "build:win": "electron-builder --win nsis portable --publish never",
+    "serve": "node server.js"
+  },
+  "build": {
+    "appId": "com.bhudgens.fixmytext",
+    "productName": "Fix My Text",
+    "icon": "assets/app-icon.png",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "assets/**/*",
+      "index.html",
+      "main.js",
+      "preload.js",
+      "server.js",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/app-icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "assets/app-icon-windows.png",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "category": "Utility",
+      "icon": "assets/app-icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.8.1"
+  }
+}
